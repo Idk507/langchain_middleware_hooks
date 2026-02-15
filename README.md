@@ -16,6 +16,224 @@ This guide provides detailed information on using the LangChain agent hooks impl
 
 ## Quick Start
 
+## Step 1: Get Azure OpenAI Access
+
+### Prerequisites
+- Active Azure subscription
+- Azure OpenAI access approved (may require application)
+
+### Request Access
+1. Go to https://aka.ms/oai/access
+2. Fill out the application form
+3. Wait for approval (can take a few days)
+
+## Step 2: Create Azure OpenAI Resource
+
+### In Azure Portal
+
+1. **Navigate to Azure Portal**
+   - Go to https://portal.azure.com/
+   - Sign in with your Azure account
+
+2. **Create Resource**
+   - Click "Create a resource"
+   - Search for "Azure OpenAI"
+   - Click "Create"
+
+3. **Configure Resource**
+   - **Subscription**: Select your subscription
+   - **Resource group**: Create new or select existing
+   - **Region**: Choose a region (e.g., East US, West Europe)
+   - **Name**: Choose a unique name (e.g., `my-openai-resource`)
+   - **Pricing tier**: Select Standard S0
+
+4. **Review and Create**
+   - Click "Review + create"
+   - Click "Create"
+   - Wait for deployment to complete
+
+## Step 3: Deploy Models
+
+### Deploy GPT-4o-mini (Simple Model)
+
+1. **Navigate to Your Resource**
+   - Go to your Azure OpenAI resource
+   - Click on "Model deployments" in the left menu
+   - Click "Create new deployment"
+
+2. **Configure Deployment**
+   - **Select a model**: Choose `gpt-4o-mini`
+   - **Deployment name**: `gpt-4o-mini` (or your preferred name)
+   - **Model version**: Select latest version
+   - **Deployment type**: Standard
+   - Click "Create"
+
+### Deploy GPT-4o (Complex Model)
+
+1. **Create Another Deployment**
+   - Click "Create new deployment" again
+
+2. **Configure Deployment**
+   - **Select a model**: Choose `gpt-4o`
+   - **Deployment name**: `gpt-4o` (or your preferred name)
+   - **Model version**: Select latest version
+   - **Deployment type**: Standard
+   - Click "Create"
+
+## Step 4: Get Credentials
+
+### Get API Key and Endpoint
+
+1. **Navigate to Keys and Endpoint**
+   - In your Azure OpenAI resource
+   - Click "Keys and Endpoint" in the left menu
+
+2. **Copy Information**
+   - **KEY 1**: This is your `AZURE_OPENAI_API_KEY`
+   - **Endpoint**: This is your `AZURE_OPENAI_ENDPOINT`
+   - Keep these secure!
+
+## Step 5: Configure Project
+
+### Update .env File
+
+Create/edit `.env` file with your credentials:
+
+```bash
+# Azure OpenAI API Key (from Keys and Endpoint)
+AZURE_OPENAI_API_KEY=abc123def456...
+
+# Azure OpenAI Endpoint (from Keys and Endpoint)
+AZURE_OPENAI_ENDPOINT=https://my-openai-resource.openai.azure.com/
+
+# API Version (recommended, check Azure docs for latest)
+AZURE_OPENAI_API_VERSION=2024-02-15-preview
+
+# Deployment Names (must match what you created)
+AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4o-mini
+AZURE_OPENAI_GPT4_DEPLOYMENT_NAME=gpt-4o
+```
+
+
+## Step 6: Test Connection
+
+### Run Basic Example
+
+```bash
+python examples/basic_azure_example.py
+```
+
+If successful, you should see:
+- ✓ Azure configuration printed
+- ✓ Agent making calls
+- ✓ Responses from your Azure OpenAI deployments
+
+## Common Issues and Solutions
+
+### Issue: "Access Denied" or "Unauthorized"
+
+**Cause**: Invalid API key or endpoint
+
+**Solution**:
+1. Double-check your API key in Azure Portal
+2. Ensure endpoint URL is correct (includes https:// and trailing /)
+3. Verify the key hasn't been regenerated
+
+### Issue: "Deployment not found"
+
+**Cause**: Deployment name mismatch
+
+**Solution**:
+1. Go to Azure Portal → Your Resource → Model deployments
+2. Check exact deployment names
+3. Update `.env` to match exactly (case-sensitive)
+
+### Issue: "Region not available"
+
+**Cause**: Azure OpenAI not available in selected region
+
+**Solution**:
+1. Check available regions: https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models
+2. Create resource in an available region (e.g., East US, West Europe)
+
+### Issue: "Quota exceeded"
+
+**Cause**: Rate limits or quota limits reached
+
+**Solution**:
+1. Check quota in Azure Portal → Your Resource → Quotas
+2. Request quota increase if needed
+3. Implement rate limiting in your code
+
+### Issue: "Model not available"
+
+**Cause**: Model not available in your region or subscription
+
+**Solution**:
+1. Check model availability for your region
+2. Try a different model (e.g., gpt-35-turbo instead of gpt-4)
+3. Contact Azure support for access
+
+## Best Practices
+
+### Security
+
+1. **Never commit `.env` file**
+   - Add to `.gitignore`
+   - Keep credentials secure
+
+2. **Use Azure Key Vault**
+   - For production deployments
+   - Rotate keys regularly
+
+3. **Implement Rate Limiting**
+   - Prevent quota exhaustion
+   - Control costs
+
+### Cost Management
+
+1. **Monitor Usage**
+   - Check Azure Portal → Cost Management
+   - Set up billing alerts
+
+2. **Choose Right Models**
+   - Use GPT-4o-mini for simple tasks
+   - Reserve GPT-4 for complex queries
+
+3. **Implement Caching**
+   - Cache frequent responses
+   - Reduce API calls
+
+### Performance
+
+1. **Select Appropriate Region**
+   - Choose region close to users
+   - Consider latency requirements
+
+2. **Use Latest API Version**
+   - Better features and performance
+   - Check documentation regularly
+
+3. **Optimize Prompts**
+   - Shorter prompts = faster responses
+   - Clear instructions = better results
+
+## Deployment Models Comparison
+
+| Model | Best For | Speed | Cost | Capabilities |
+|-------|----------|-------|------|--------------|
+| GPT-4o-mini | Simple queries, fast responses | Fast | Low | Good for basic tasks |
+| GPT-4o | Complex analysis, high quality | Moderate | Higher | Best for advanced tasks |
+| GPT-4 | Maximum quality, complex reasoning | Slower | Highest | Best capabilities |
+
+## API Versions
+
+Always use the latest stable API version. Check:
+https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
+
+Current recommended: `2024-02-15-preview`
+
+
 ### Installation
 
 ```bash
@@ -509,4 +727,10 @@ class ContextMiddleware(AgentMiddleware):
 - [Middleware API Reference](https://reference.langchain.com/python/langchain/middleware/)
 - [Example Projects](./examples/)
 - [Test Suite](./tests/)
+
+- **Azure OpenAI Documentation**: https://learn.microsoft.com/en-us/azure/ai-services/openai/
+- **Model Availability**: https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models
+- **Pricing**: https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/
+- **Quotas and Limits**: https://learn.microsoft.com/en-us/azure/ai-services/openai/quotas-limits
+- **Request Access**: https://aka.ms/oai/access
 
